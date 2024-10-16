@@ -68,10 +68,10 @@ python
 import soundfile as sf
 
 for i, clase in enumerate(np.unique(clases)):
-    clase_indices = np.where(clases == clase)[0]
-    segmentos = [y[onset_frames[i]:onset_frames[i+1]] for i in clase_indices]
-    audio_unido = np.concatenate(segmentos)
-    sf.write(f'segmento_clase_{clase}.wav', audio_unido, sr)
+    clase_indices = np.where(clases == clase)[0]
+    segmentos = [y[onset_frames[i]:onset_frames[i+1]] for i in clase_indices]
+    audio_unido = np.concatenate(segmentos)
+    sf.write(f'segmento_clase_{clase}.wav', audio_unido, sr)
 
 Ejemplo de Uso
 Instalación de dependencias:
