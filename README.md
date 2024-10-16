@@ -2,21 +2,6 @@
 
 Este script permite realizar un análisis avanzado de archivos de audio, incluyendo segmentación, extracción de características con MFCC, clasificación mediante PCA y k-Means utilizando TensorFlow, y unificación de segmentos por clase.
 
-## Table of Contents
-
-* [About The Project](#about-the-project)
-    * [Built With](#built-with)
-* [Getting Started](#getting-started)
-    * [Prerequisites](#prerequisites)
-    * [Installation](#installation)
-* [Usage](#usage)
-    * [Segmentación de Audio](#segmentación-de-audio)
-    * [Extracción de Características](#extracción-de-características)
-    * [Clasificación de Segmentos](#clasificación-de-segmentos)
-    * [Unificación de Segmentos](#unificación-de-segmentos)
-* [Example](#example)
-
-
 ## About The Project
 
 Este proyecto proporciona un script de Python para analizar archivos de audio. Realiza las siguientes funciones:
