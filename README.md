@@ -1,15 +1,16 @@
-# Maestro de Análisis de Audio
+# LMQE
 
-Este script permite realizar un análisis avanzado de archivos de audio, incluyendo segmentación, extracción de características con MFCC, clasificación mediante PCA y k-Means utilizando TensorFlow, y unificación de segmentos por clase.
+This script enables advanced analysis of audio files, including segmentation, feature extraction with MFCC, classification using PCA and k-Means with TensorFlow, and merging of segments by class.
 
 ## About The Project
 
-Este proyecto proporciona un script de Python para analizar archivos de audio. Realiza las siguientes funciones:
+This project provides a Python script for analyzing audio files. It performs the following functions:
 
-* **Segmentación:** Divide el audio en segmentos basados en la detección de onsets.
-* **Extracción de características:** Extrae coeficientes MFCC (Mel-Frequency Cepstral Coefficients) de cada segmento.
-* **Clasificación:**  Utiliza PCA (Principal Component Analysis) para reducir la dimensionalidad de las características y k-Means para agrupar los segmentos en clases.
-* **Unificación:** Combina los segmentos de audio que pertenecen a la misma clase.
+* **Segmentation:** Divides the audio into segments based on onset detection.
+* **Feature Extraction:** Extracts MFCC (Mel-Frequency Cepstral Coefficients) from each segment.
+* **Classification:** Utilizes PCA (Principal Component Analysis) to reduce the dimensionality of the features and k-Means to group the segments into classes.
+* **Merging:** Combines audio segments that belong to the same class.
+
 
 ### Built With
 
@@ -22,7 +23,6 @@ Este proyecto proporciona un script de Python para analizar archivos de audio. R
 * [TensorFlow](https://www.tensorflow.org/)
 * [Scikit-learn](https://scikit-learn.org/stable/)
 
-
 ## Getting Started
 
 Para utilizar este script, sigue los siguientes pasos:
@@ -33,13 +33,13 @@ Asegúrate de tener Python 3.x instalado en tu sistema.
 
 ### Installation
 
-1. Clona el repositorio (si aplica).
-2. Instala las dependencias necesarias:
+1. **Clonar el Repositorio**
 
    ```bash
-   pip install librosa numpy soundfile matplotlib pandas tensorflow scikit-learn
+   git clone https://github.com/tu-usuario/maestro-analisis-audio.git
+   cd maestro-analisis-audio
 
-   ## 2. **Audio Segmentation**
+## 2. **Audio Segmentation**
 The script divides the audio file into segments based on detected onset peaks. These segments are saved as separate `.wav` files in a new directory.
 
 - **Function**: `segmentar_audio(nombre_archivo)`
@@ -50,6 +50,29 @@ The script divides the audio file into segments based on detected onset peaks. T
   - Detects onset peaks using the `librosa.onset.onset_strength()` function.
   - Converts the detected peaks into time samples and segments the audio.
   - Saves each segment as a `.wav` file.
+  
+## 3. **Feature Extraction and CSV Storage**
+The script extracts Mel-frequency cepstral coefficients (MFCC) from each audio segment and saves them in a CSV file.
+
+- **Function**: `extraer_caracteristicas(carpeta_segmentos)`
+- **Libraries**: `librosa`, `csv`, `os`
+- **Process**:
+  - Creates a new directory for storing MFCC files.
+  - Loads each `.wav` file from the segments folder.
+  - Extracts MFCCs using `librosa.feature.mfcc()` function.
+  - Saves the extracted MFCC features to a CSV file, with rows representing each audio segment.
+
+## 4. **Segment Classification**
+The script applies K-means clustering to classify audio segments based on the MFCC features. Before clustering, it reduces the data dimensionality using PCA (Principal Component Analysis).
+
+- **Function**: `clasificar_segmentos(csv_path)`
+- **Libraries**: `pandas`, `sklearn` (for PCA and KMeans)
+- **Process**:
+  - Loads the CSV file containing MFCC features.
+  - Scales the feature data using `StandardScaler()`.
+  - Reduces dimensionality using PCA, retaining enough components to explain the variance effectively.
+  - Applies K-means clustering to the PCA-transformed data.
+  - Saves the segment class labels in a text file.
 
 ## 5. **Class Unification**
 The script merges all audio segments belonging to the same class into a single audio file for each class.
