@@ -1,4 +1,4 @@
-# Script Maestro de Análisis de Audio
+#LMQE
 
 import os
 import sys
@@ -13,7 +13,6 @@ import tensorflow as tf
 import glob
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
-
 
 # Parámetros de configuración
 NUM_MAX_CLASES = 8
