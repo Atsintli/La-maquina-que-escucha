@@ -1,27 +1,88 @@
-# La-máquina-que-escucha
+Maestro de Análisis de Audio
+Este script permite realizar un análisis avanzado de archivos de audio, incluyendo segmentación, extracción de características con MFCC, clasificación mediante PCA y k-Means utilizando TensorFlow, y unificación de segmentos por clase.
 
-El sistema de la máquina que escucha realiza análisis dentro de una base de datos de audio con el objetivo generar modelos de escucha que describan formas arquetípicas de aproximarse a la libre improvisación, su objetivo apunta a la generación de modelos que den cuenta de como es la aproximación de un determinado improvisador libre a dicha práctica en cuanto a densidad sonora, amplitud y timbre.
+Requisitos
+Python 3.x
+Paquetes:
+librosa
+numpy
+soundfile
+matplotlib
+pandas
+tensorflow
+scikit-learn
 
-# Segmentación
+Instalación de Dependencias
+Instalar los paquetes necesarios:
 
-La parte de segmentación de audio consiste en la detección de todos los momentos de inicio (onsets) de los sonidos de cada audio. Para su detección se usó el objeto onset.detect de la librería Librosa. Este objeto devuelve una lista de todos los momentos de onsets detectados en el audio. Posteriormente, Python abre un archivo de texto el cual será llenado por la lista  de todos los segmentos detectados indicando el momento de inicio y final de cada onset  (un cuadro —muestras por segundo— antes de que inicie el siguiente onset). Finalmente se exportaron todos los segmentos detectados a un archivo de texto y en una carpeta se exportaron los segmentos de audio del archivo original en formato wav. Este programa soporta audios tanto en formatos mp3 así como wav. 
+bash
+pip install librosa numpy soundfile matplotlib pandas tensorflow scikit-learn
 
-# Extracción
+Uso
+Ejecuta el script con la siguiente estructura:
 
-En la siguiente sección se extrajeron las características que describen de forma tímbrica cada uno de los de los fragmentos de audio generados en el paso anterior. En este proceso se hicieron pruebas con descriptores de audio como MFCC, espectrograma en la escala Mel, centroide espectral, contraste espectral y contraste de ancho de banda, para determinar cuál combinación de descriptores generaba resultados más coherentes al momento de la clasificación. Estos pueden ser representados como vectores de dimensiones variables, es decir que pueden contener mayor o menor información. El algoritmo que se propuso fue el siguiente: 1) leer todos los archivos de audio generados en el proceso anterior; 2) extraer los valores del espectro normalizado en valores absolutos con la transformada rápida de Fourier (esta función solo será aplicada en el contraste espectral); 3) extraer la media de cada uno de los vectores de los descriptores usados;\footnote{Obtener la media de cada uno de los descriptores garantiza tener vectores de las mismas dimensiones para diferentes tamaños de archivos de audio e información. Por ejemplo, si en el caso del MFCC se indicó al programa usar 12 vectores, el contenido de estos puede variar dependiendo de la longitud del archivo y la cantidad de información que contenga, al sacar la media terminaríamos con 12 vectores cada uno con un valor que representa la cantidad de energía encontrada en cada uno de los cuadros de la muestra de audio.} 4) concatenar cada uno de los vectores en una lista y finalmente escribir la lista de cada archivo de audio en un archivo de texto que pueda ser leído posteriormente por el clasificador K-Means.
+bash
+python3 LMQE.py <ruta_al_archivo_de_audio>
 
-# Clasificación
+Segmentación de Audio
+El script segmenta el archivo de audio en fragmentos basados en la detección de onsets.
 
-El siguiente paso involucró la programación del algoritmo para clasificar los datos extraídos de los fragmentos de audio con el clasificador K-Means. El código de clasificación comprende: 1) seleccionar el número de clases que se quieren obtener de la totalidad del audio; 2) seleccionar el número de iteraciones a realizar, es decir el número de veces que se entrenará al sistema para clasificar los datos; 3) leer  la información extraída por los descriptores de audio a partir de todos los archivos de texto, generados en el paso anterior; 4) disponer los datos en una matriz donde se compara el nombre de cada archivo con los datos de los vectores obtenidos; 5) seleccionar un centro inicial a partir de los datos extraídos  para agrupar los demás valores; 6) agrupar con sus vecinos más cercanos/parecidos cada uno de los vectores de datos analizados; 7) actualizar el centro de los grupos hasta encontrar su punto medio o masa central; 8) iterar el número de veces seleccionado hasta agrupar todos los vectores en el número de clases deseadas. 
+python
+import librosa
 
-# Generación de modelo conceptual
+y, sr = librosa.load(<ruta_al_archivo_de_audio>)
+onset_frames = librosa.onset.onset_detect(y=y, sr=sr)
 
-El siguiente paso fue corroborar los resultados obtenidos por el clasificador. Esta tarea se realizó en dos fases; primero, los datos obtenidos del clasificador fueron depositados en un gráfico en donde es posible visualizar el número de materiales (o clases, para propósitos del análisis) y cómo fueron usados a través del tiempo, generando una estructura tímbrica temporal dividida por clases. Al mismo tiempo se generó una gráfica de pastel la cual muestra el porcentaje de apariciones de cada clase; esta información fue útil para establecer arquetipos que denotan la forma de tocar de un intérprete respecto a los materiales empleados. Segundo, se realizó un código que pega o unifica todos los segmentos de los archivos de audio, generados en la primera fase, en la cantidad de clases elegida, agrupando los archivos similares en un solo archivo de audio. Es decir, si se obtuvieron mil archivos de audio y se seleccionó clasificarlos en 18 clases, se obtienen 18 archivos de audio, donde cada uno de los archivos  corresponden timbricamente a una clase específica. Esto sirvió para generar un modelo de comprobación auditiva que permitió determinar si era preciso o no el algoritmo de clasificación,  ya que al agrupar los segmentos de audio tímbricamente parecidos entre sí resultó más fácil identificar si los descriptores de audio seleccionados eran los adecuados.
+Extracción de Características
+Se extraen las características MFCC para cada segmento y se guardan en un archivo CSV.
 
-Asimismo, se obtuvo uso la matriz de correlación propuesta por la librería \textit{librosa} en la cual se puede observar de manera concreta cómo algunos de los elementos de la improvisación se están repitiendo o no a lo largo del tiempo, como puede observarse en la figura 5.2. Si bien esta no es una aproximación basada en el algoritmo de clasificación, puede ser una herramienta útil para seleccionar o corroborar cuántas clases hay en un archivo de audio o en la totalidad del corpus con el que se esté trabajando.
+python
+import numpy as np
+import pandas as pd
 
-# Análisis de la densidad sonora
+mfccs = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=13)
+df = pd.DataFrame(mfccs.T)
+df.to_csv('caracteristicas_mfcc.csv', index=False)
 
-Finalmente, se generó un pequeño programa para hacer un análisis de la densidad sonora entre dos improvisaciones. Se optó por una solución bastante primitiva pero que sirve a corto plazo para determinar el grado de densidad que hay en momentos específicos de la improvisación y, de igual forma que el paso anterior, generar arquetipos de la improvisación basados en el análisis de la densidad usada por distintos improvisadores. 
+Clasificación de Segmentos
+Se realiza la reducción de dimensionalidad mediante PCA y se agrupan los segmentos utilizando k-Means.
 
-El algoritmo llama los archivos de audio originales (sin segmentar) y calcula cuántos ataques hay cada cinco segundos (aunque esta regla puede variar, siendo el análisis de ataques cada n segundos). A partir de este cálculo genera una lista que representa la cantidad de ataques que hubo por cada segmento. Después la lista es comparada con todas las listas generadas de otros ejemplos de audio de un mismo improvisador. Para hacer la comparación de ejemplos de audio con distintos tamaños se optó por llenar de ceros los lugares en donde ya no había información sonora en los audios más cortos, de manera que al hacer la comprobación con varios archivos de audio, pudiera haber coherencia en los tamaños de los archivos al compararlos mutuamente. La comparación se realizó con una simple resta y después una suma de todos los valores resultantes, de manera que se obtiene un promedio de similaridad entre las distintas aproximaciones al parámetro de densidad en un improvisador así como entre distintos improvisadores.
+python
+from sklearn.decomposition import PCA
+from sklearn.cluster import KMeans
+
+# Reducción con PCA
+pca = PCA(n_components=2)
+mfccs_pca = pca.fit_transform(mfccs.T)
+
+# Clasificación con k-Means
+kmeans = KMeans(n_clusters=3)
+kmeans.fit(mfccs_pca)
+clases = kmeans.predict(mfccs_pca)
+np.savetxt('clases.txt', clases, fmt='%d')
+
+Unificación de Segmentos
+Los segmentos de audio clasificados se combinan y se exportan en archivos separados por clase.
+
+python
+import soundfile as sf
+
+for i, clase in enumerate(np.unique(clases)):
+    clase_indices = np.where(clases == clase)[0]
+    segmentos = [y[onset_frames[i]:onset_frames[i+1]] for i in clase_indices]
+    audio_unido = np.concatenate(segmentos)
+    sf.write(f'segmento_clase_{clase}.wav', audio_unido, sr)
+
+Ejemplo de Uso
+Instalación de dependencias:
+bash
+pip install librosa numpy soundfile matplotlib pandas tensorflow scikit-learn
+
+Ejecución del análisis:
+bash
+python3 LMQE.py archivo_audio.wav
+
+Esto genera:
+caracteristicas_mfcc.csv: CSV con los valores MFCC de cada segmento.
+clases.txt: Archivo de texto con la clasificación de los segmentos.
+Archivos WAV por clase: Archivos de audio unificados por clase.
